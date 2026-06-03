@@ -879,30 +879,89 @@
       measurementId: "G-LG15NT9BDQ"
     };
 
-    // Initialize Firebase
-    if (typeof firebase !== 'undefined') {
-      firebase.initializeApp(firebaseConfig);
-      const database = firebase.database();
-      const tablesRef = database.ref('tables');
+    // Initialize Firebase with robust fallback to localStorage
+    function setSyncStatus(text, online = false) {
+      const el = document.getElementById('syncStatus');
+      if (!el) return;
+      el.textContent = text;
+      const dot = el.querySelector('.sync-dot');
+      if (dot) dot.style.background = online ? '#27ae60' : '#b89a8a';
+    }
 
-      // Listen for real-time updates from Firebase
-      tablesRef.on('value', (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          tables = data;
-        } else {
-          // Initialize tables if empty on Firebase
-          tablesRef.set(tables);
+    function loadLocalData() {
+      try {
+        const raw = localStorage.getItem('guestTables');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed) && parsed.length === TABLE_COUNT) {
+            tables = parsed;
+            return true;
+          }
         }
+      } catch (e) {
+        console.warn('Failed to load local data', e);
+      }
+      // fallback to fresh initialization
+      initializeTables();
+      return false;
+    }
+
+    function saveLocalData() {
+      try {
+        localStorage.setItem('guestTables', JSON.stringify(tables));
+      } catch (e) {
+        console.warn('Failed to save local data', e);
+      }
+    }
+
+    // Try to initialize Firebase; if blocked, use localStorage fallback
+    if (typeof firebase !== 'undefined' && firebase.database) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const tablesRef = database.ref('tables');
+        setSyncStatus('Connecting to Firebase...', true);
+
+        // Listen for real-time updates from Firebase
+        tablesRef.on('value', (snapshot) => {
+          isLoading = true;
+          try {
+            const data = snapshot.val();
+            if (data && Array.isArray(data) && data.length === TABLE_COUNT) {
+              tables = data;
+            } else {
+              // If Firebase has no data or malformed, write current local tables
+              tablesRef.set(tables).catch(() => {});
+            }
+          } catch (e) {
+            console.error('Error processing Firebase data:', e);
+          }
+          renderMap();
+          renderManage();
+          updateStats();
+          saveLocalData();
+          isLoading = false;
+          setSyncStatus('Connected to Firebase', true);
+        }, (error) => {
+          console.error('Firebase error:', error);
+          setSyncStatus('Firebase error — using local data', false);
+          loadLocalData();
+          renderMap();
+          renderManage();
+          updateStats();
+        });
+      } catch (e) {
+        console.warn('Firebase initialization failed:', e);
+        setSyncStatus('Firebase blocked — using local data', false);
+        loadLocalData();
         renderMap();
         renderManage();
         updateStats();
-      }, (error) => {
-        console.error("Firebase error:", error);
-      });
+      }
     } else {
-      console.warn("Firebase SDK not loaded, using local data only");
-      // Render UI with local data
+      console.warn('Firebase SDK not loaded or blocked, using local data only');
+      setSyncStatus('Offline — local data only (tracking prevented)', false);
+      loadLocalData();
       setTimeout(() => {
         renderMap();
         renderManage();
