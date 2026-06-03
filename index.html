@@ -865,29 +865,34 @@
     let tables = [];
     let isLoading = true;
 
+    // Initialize with empty tables immediately
+    function initializeTables() {
+      tables = Array.from({ length: TABLE_COUNT }, (_, i) => ({
+        id: i + 1,
+        capacity: tableCapacity(i),
+        guests: []
+      }));
+    }
+
+    // Initialize immediately
+    initializeTables();
+    isLoading = false;
+
     // Listen for real-time updates from Firebase
     tablesRef.on('value', (snapshot) => {
       const data = snapshot.val();
       if (data) {
         tables = data;
       } else {
-        // Initialize tables if empty
-        initializeFirebaseData();
+        // Initialize tables if empty on Firebase
+        tablesRef.set(tables);
       }
-      isLoading = false;
       renderMap();
       renderManage();
       updateStats();
+    }, (error) => {
+      console.error("Firebase error:", error);
     });
-
-    function initializeFirebaseData() {
-      const newTables = Array.from({ length: TABLE_COUNT }, (_, i) => ({
-        id: i + 1,
-        capacity: tableCapacity(i),
-        guests: []
-      }));
-      tablesRef.set(newTables);
-    }
 
     function save() {
       // Firebase automatically syncs data - no additional save needed
