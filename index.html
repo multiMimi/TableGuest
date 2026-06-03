@@ -832,6 +832,41 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
+    // ── GLOBAL STATE ──
+    let isLoading = false;
+    const TABLE_COUNT = 18;
+    
+    const TABLE_POS = [
+      { x: 185, y: 145, r: 24 },  // T1 - top center
+      { x: 95, y: 220, r: 22 },   // T2 - left upper
+      { x: 275, y: 220, r: 22 },  // T3 - right upper
+      { x: 50, y: 310, r: 24 },   // T4 - left side
+      { x: 320, y: 310, r: 24 },  // T5 - right side
+      { x: 120, y: 380, r: 24 },  // T6 - left lower
+      { x: 250, y: 380, r: 24 },  // T7 - right lower
+      { x: 185, y: 450, r: 24 },  // T8 - center lower
+      { x: 70, y: 430, r: 24 },   // T9 - left bottom
+      { x: 300, y: 430, r: 24 },  // T10 - right bottom
+      { x: 150, y: 500, r: 22 },  // T11 - left corner
+      { x: 220, y: 500, r: 22 },  // T12 - right corner
+      { x: 100, y: 160, r: 24 },  // T13 - upper left
+      { x: 270, y: 160, r: 24 },  // T14 - upper right
+      { x: 60, y: 250, r: 22 },   // T15 - left mid
+      { x: 310, y: 250, r: 22 },  // T16 - right mid
+      { x: 185, y: 280, r: 24 },  // T17 - center mid
+      { x: 140, y: 350, r: 23 }   // T18 - center lower mid
+    ];
+
+    let tables = [];
+    function initializeTables() {
+      tables = [];
+      for (let i = 0; i < TABLE_COUNT; i++) {
+        const capacity = (i === 1 || i === 2) ? 6 : 8;
+        tables.push({ id: i + 1, capacity: capacity, guests: [] });
+      }
+    }
+    initializeTables();
+
     // ── FIREBASE CONFIG ──
     const firebaseConfig = {
       apiKey: "AIzaSyB205cNsDOpngF8GKOF4VQD9gdG9MIkwis",
