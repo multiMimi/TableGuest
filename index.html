@@ -67,6 +67,31 @@
       text-transform: uppercase;
     }
 
+    .sync-status {
+      font-size: 0.65rem;
+      color: #27ae60;
+      margin-top: 4px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .sync-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
     /* ── TABS ── */
     .tabs {
       display: flex;
@@ -124,7 +149,6 @@
       overflow: hidden;
     }
 
-    /* Zone labels */
     .zone-label {
       position: absolute;
       font-size: 0.55rem;
@@ -135,7 +159,6 @@
       pointer-events: none;
     }
 
-    /* Stage */
     .stage-box {
       position: absolute;
       top: 8px;
@@ -154,7 +177,6 @@
       letter-spacing: 0.1em;
     }
 
-    /* Dance floor */
     .dance-floor {
       position: absolute;
       top: 50px;
@@ -172,7 +194,6 @@
       text-transform: uppercase;
     }
 
-    /* Food tables (wood logs) */
     .food-table {
       position: absolute;
       background: linear-gradient(135deg, #8b5e3c 0%, #6b4423 50%, #8b5e3c 100%);
@@ -189,7 +210,6 @@
       box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
     }
 
-    /* Round tables */
     .round-table {
       position: absolute;
       border-radius: 50%;
@@ -241,7 +261,6 @@
       line-height: 1;
     }
 
-    /* Rooms */
     .room-box {
       position: absolute;
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -257,7 +276,6 @@
       line-height: 1.3;
     }
 
-    /* Exit labels */
     .exit-label {
       position: absolute;
       font-size: 0.44rem;
@@ -266,7 +284,6 @@
       letter-spacing: 0.1em;
     }
 
-    /* Entrance */
     .entrance {
       position: absolute;
       bottom: 38px;
@@ -286,7 +303,6 @@
       text-transform: uppercase;
     }
 
-    /* Map legend */
     .legend {
       display: flex;
       flex-wrap: wrap;
@@ -460,7 +476,7 @@
       cursor: not-allowed;
     }
 
-    /* ── ASSIGN MODAL ── */
+    /* ── MODAL ── */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -492,7 +508,6 @@
         transform: translateY(30px);
         opacity: 0;
       }
-
       to {
         transform: none;
         opacity: 1;
@@ -696,7 +711,6 @@
       margin-top: 2px;
     }
 
-    /* scrollbar */
     ::-webkit-scrollbar {
       width: 4px;
     }
@@ -717,6 +731,7 @@
   <header>
     <h1>Kingdom Of God Center</h1>
     <p>Event Table Guide — Waiter Assistant</p>
+    <div class="sync-status" id="syncStatus"><span class="sync-dot"></span>Connected to Firebase</div>
   </header>
 
   <div class="tabs">
@@ -729,34 +744,19 @@
   <div id="tab-map" class="tab-content active">
     <div class="map-wrap">
       <div class="venue" id="venue">
-
-        <!-- Stage -->
         <div class="stage-box">🎵 STAGE</div>
-
-        <!-- Dance floor -->
         <div class="dance-floor">Dance Floor</div>
-
-        <!-- Food tables (wood logs) — 3 side by side -->
         <div class="food-table" style="width:60px;height:22px;left:140px;top:352px;">🪵 Food</div>
         <div class="food-table" style="width:60px;height:22px;left:206px;top:352px;">🪵 Food</div>
         <div class="food-table" style="width:60px;height:22px;left:272px;top:352px;">🪵 Food</div>
-
-        <!-- Rooms left side -->
         <div class="room-box" style="left:0;top:190px;width:62px;height:35px;">Accessible<br>WC</div>
         <div class="room-box" style="left:0;top:228px;width:62px;height:55px;">Ladies<br>WC</div>
         <div class="room-box" style="left:0;top:228px;width:30px;height:55px;">Men's<br>WC</div>
-        <div class="room-box" style="left:0;top:140px;width:62px;height:46px;font-size:0.38rem;">Access to<br>Kitchen
-        </div>
+        <div class="room-box" style="left:0;top:140px;width:62px;height:46px;font-size:0.38rem;">Access to<br>Kitchen</div>
         <div class="room-box" style="left:0;top:283px;width:62px;height:28px;font-size:0.38rem;">Access<br>to BAR</div>
-
-
-        <!-- Entrance -->
         <div class="entrance">🚪 Main Entrance</div>
-
-        <!-- Round tables — rendered by JS -->
         <div id="map-tables"></div>
       </div>
-
       <div class="legend">
         <div class="legend-item">
           <div class="legend-dot" style="background:rgba(255,255,255,0.08);border-color:rgba(212,168,67,0.6)"></div>
@@ -770,8 +770,7 @@
         </div>
         <div class="legend-item"><span>🪵</span> Food Table</div>
       </div>
-      <p style="text-align:center;font-size:0.68rem;color:var(--muted);padding-bottom:8px;">Tap a table to add / view
-        guests</p>
+      <p style="text-align:center;font-size:0.68rem;color:var(--muted);padding-bottom:8px;">Tap a table to add / view guests</p>
     </div>
   </div>
 
@@ -779,19 +778,15 @@
   <div id="tab-waiter" class="tab-content">
     <div class="waiter-view">
       <div style="margin-bottom:14px">
-        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.5;">Enter a guest's name to
-          instantly find their assigned table.</p>
+        <p style="font-size:0.78rem;color:var(--muted);margin-bottom:10px;line-height:1.5;">Enter a guest's name to instantly find their assigned table.</p>
         <div class="waiter-input-wrap">
-          <input class="waiter-input" id="waiterSearch" placeholder="Guest name…" oninput="findGuest()"
-            autocomplete="off">
+          <input class="waiter-input" id="waiterSearch" placeholder="Guest name…" oninput="findGuest()" autocomplete="off">
           <button class="btn-find" onclick="findGuest()">Find</button>
         </div>
       </div>
       <div id="waiterResult"></div>
       <div style="border-top:1px solid rgba(255,255,255,0.08);padding-top:12px;margin-top:4px;">
-        <div
-          style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">
-          Event Overview</div>
+        <div style="font-size:0.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:8px;">Event Overview</div>
         <div class="stats-grid">
           <div class="stat-box">
             <div class="stat-num" id="stat-tables">18</div>
@@ -825,66 +820,96 @@
       <div id="modal-meta" class="modal-meta"></div>
       <div class="modal-guests" id="modal-guests"></div>
       <div class="modal-add">
-        <input class="modal-input" id="modal-name-input" placeholder="Guest full name…"
-          onkeydown="if(event.key==='Enter')modalAddGuest()">
+        <input class="modal-input" id="modal-name-input" placeholder="Guest full name…" onkeydown="if(event.key==='Enter')modalAddGuest()">
         <button class="btn-modal-add" onclick="modalAddGuest()">+ Add</button>
       </div>
       <button class="btn-close" onclick="closeModalDirect()">✕ Close</button>
     </div>
   </div>
 
-  <script>
-    // ── DATA ──
-    // 18 tables: table 2 & 3 = capacity 6, rest = 8
-    // Total: 2×6 + 16×8 = 12 + 128 = 140
-    // Food tables are rendered separately and do not count toward numbered table capacities.
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js"></script>
 
+  <script>
+    // ── FIREBASE CONFIG ──
+    const firebaseConfig = {
+      apiKey: "AIzaSyB205cNsDOpngF8GKOF4VQD9gdG9MIkwis",
+      authDomain: "tablesguest.firebaseapp.com",
+      databaseURL: "https://tablesguest-default-rtdb.firebaseio.com",
+      projectId: "tablesguest",
+      storageBucket: "tablesguest.firebasestorage.app",
+      messagingSenderId: "366244761531",
+      appId: "1:366244761531:web:a095bcab907363bd1a7e9e",
+      measurementId: "G-LG15NT9BDQ"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+    const tablesRef = database.ref('tables');
+
+    // ── TABLE CONFIGURATION ──
     const TABLE_COUNT = 18;
     function tableCapacity(i) { return i === 1 || i === 2 ? 6 : 8; }
 
-    // Table positions on the 380×580 venue map (x, y = center, r = radius)
-    // r=18 (diameter 36px), minimum gap between tables = 10px → spacing = 46px minimum
-    // Grid uses 52px column spacing and 56px row spacing for clear separation
     const TABLE_POS = [
-      // Row 1 (y=148) — 4 tables across main hall
-      { x: 90, y: 148, r: 18 },
-      { x: 148, y: 148, r: 18 },
-      { x: 206, y: 148, r: 18 },
-      { x: 264, y: 148, r: 18 },
-      // Row 2 (y=204)
-      { x: 90, y: 204, r: 18 },
-      { x: 148, y: 204, r: 18 },
-      { x: 206, y: 204, r: 18 },
-      { x: 264, y: 204, r: 18 },
-      // Row 3 (y=260)
-      { x: 90, y: 260, r: 18 },
-      { x: 148, y: 260, r: 18 },
-      { x: 206, y: 260, r: 18 },
-      { x: 264, y: 260, r: 18 },
-      // Row 4 (y=316) — only 2 left-side tables (right side has food tables)
-      { x: 90, y: 316, r: 18 },
-      { x: 148, y: 316, r: 18 },
-      // Right column (x=330) — 4 tables stacked
-      { x: 330, y: 148, r: 18 },
-      { x: 330, y: 204, r: 18 },
-      { x: 330, y: 260, r: 18 },
-      { x: 330, y: 316, r: 18 },
+      { x: 90, y: 148, r: 18 }, { x: 148, y: 148, r: 18 }, { x: 206, y: 148, r: 18 }, { x: 264, y: 148, r: 18 },
+      { x: 90, y: 204, r: 18 }, { x: 148, y: 204, r: 18 }, { x: 206, y: 204, r: 18 }, { x: 264, y: 204, r: 18 },
+      { x: 90, y: 260, r: 18 }, { x: 148, y: 260, r: 18 }, { x: 206, y: 260, r: 18 }, { x: 264, y: 260, r: 18 },
+      { x: 90, y: 316, r: 18 }, { x: 148, y: 316, r: 18 },
+      { x: 330, y: 148, r: 18 }, { x: 330, y: 204, r: 18 }, { x: 330, y: 260, r: 18 }, { x: 330, y: 316, r: 18 },
     ];
 
-    let tables = JSON.parse(localStorage.getItem('lus_tables') || 'null');
-    if (!tables) {
-      tables = Array.from({ length: TABLE_COUNT }, (_, i) => ({
+    // ── DATA MANAGEMENT ──
+    let tables = [];
+    let isLoading = true;
+
+    // Listen for real-time updates from Firebase
+    tablesRef.on('value', (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        tables = data;
+      } else {
+        // Initialize tables if empty
+        initializeFirebaseData();
+      }
+      isLoading = false;
+      renderMap();
+      renderManage();
+      updateStats();
+    });
+
+    function initializeFirebaseData() {
+      const newTables = Array.from({ length: TABLE_COUNT }, (_, i) => ({
         id: i + 1,
         capacity: tableCapacity(i),
         guests: []
       }));
-      save();
+      tablesRef.set(newTables);
     }
 
-    function save() { localStorage.setItem('lus_tables', JSON.stringify(tables)); }
+    function save() {
+      // Firebase automatically syncs data - no additional save needed
+      // But we can update the entire tables array
+      tablesRef.set(tables).catch(error => {
+        console.error("Error saving to Firebase:", error);
+        alert('Error saving data: ' + error.message);
+      });
+    }
+
+    function saveTable(tableId) {
+      // Save individual table
+      if (tableId >= 0 && tableId < tables.length) {
+        tablesRef.child(tableId).set(tables[tableId]).catch(error => {
+          console.error("Error saving table:", error);
+        });
+      }
+    }
 
     // ── MAP RENDER ──
     function renderMap() {
+      if (isLoading) return;
       const wrap = document.getElementById('map-tables');
       wrap.innerHTML = '';
       tables.forEach((t, i) => {
@@ -933,7 +958,7 @@
       const t = tables[activeTableIdx];
       if (t.guests.length >= t.capacity) return;
       t.guests.push(name);
-      save();
+      saveTable(activeTableIdx);
       input.value = '';
       renderModalGuests();
       renderMap();
@@ -943,7 +968,7 @@
 
     function removeGuest(tableIdx, guestIdx) {
       tables[tableIdx].guests.splice(guestIdx, 1);
-      save();
+      saveTable(tableIdx);
       if (activeTableIdx === tableIdx) renderModalGuests();
       renderMap();
       renderManage();
@@ -968,11 +993,11 @@
       }
       if (found) {
         res.innerHTML = `<div class="result-card">
-      <div class="r-label">Guest Found</div>
-      <div class="r-name">🌺 ${found.name}</div>
-      <div class="r-table">Table ${found.table.id}</div>
-      <div class="r-sub">${found.table.guests.length} / ${found.table.capacity} guests • Please escort to Table ${found.table.id}</div>
-    </div>`;
+          <div class="r-label">Guest Found</div>
+          <div class="r-name">🌺 ${found.name}</div>
+          <div class="r-table">Table ${found.table.id}</div>
+          <div class="r-sub">${found.table.guests.length} / ${found.table.capacity} guests • Please escort to Table ${found.table.id}</div>
+        </div>`;
       } else {
         res.innerHTML = `<div class="not-found">⚠️ No guest found matching "<strong>${document.getElementById('waiterSearch').value.trim()}</strong>"</div>`;
       }
@@ -980,6 +1005,7 @@
 
     // ── MANAGE RENDER ──
     function renderManage() {
+      if (isLoading) return;
       const q = (document.getElementById('tableSearch')?.value || '').toLowerCase();
       const el = document.getElementById('manageList');
       el.innerHTML = '';
@@ -991,22 +1017,22 @@
         const card = document.createElement('div');
         card.className = 'table-card';
         card.innerHTML = `
-      <div class="table-card-header" onclick="openModal(${idx})">
-        <div>
-          <div class="table-card-title">🌺 Table ${t.id}</div>
-          <div class="capacity-bar"><div class="capacity-fill" style="width:${pct}%"></div></div>
-        </div>
-        <div class="table-card-meta">${t.guests.length}/${t.capacity} guests</div>
-      </div>
-      <div class="guest-list">
-        ${t.guests.length === 0 ? '<div class="empty-state">No guests yet — tap to add</div>' :
-            t.guests.map((g, gi) => `<div class="guest-row"><span class="guest-name">${g}</span><button class="btn-remove" onclick="removeGuest(${idx},${gi})">✕</button></div>`).join('')
-          }
-      </div>
-      <div class="add-guest-row">
-        <input class="add-guest-input" placeholder="Add guest name…" id="add-${idx}" onkeydown="if(event.key==='Enter')quickAdd(${idx})">
-        <button class="btn-add" onclick="quickAdd(${idx})" ${t.guests.length >= t.capacity ? 'disabled' : ''}>+ Add</button>
-      </div>`;
+          <div class="table-card-header" onclick="openModal(${idx})">
+            <div>
+              <div class="table-card-title">🌺 Table ${t.id}</div>
+              <div class="capacity-bar"><div class="capacity-fill" style="width:${pct}%"></div></div>
+            </div>
+            <div class="table-card-meta">${t.guests.length}/${t.capacity} guests</div>
+          </div>
+          <div class="guest-list">
+            ${t.guests.length === 0 ? '<div class="empty-state">No guests yet — tap to add</div>' :
+              t.guests.map((g, gi) => `<div class="guest-row"><span class="guest-name">${g}</span><button class="btn-remove" onclick="removeGuest(${idx},${gi})">✕</button></div>`).join('')
+            }
+          </div>
+          <div class="add-guest-row">
+            <input class="add-guest-input" placeholder="Add guest name…" id="add-${idx}" onkeydown="if(event.key==='Enter')quickAdd(${idx})">
+            <button class="btn-add" onclick="quickAdd(${idx})" ${t.guests.length >= t.capacity ? 'disabled' : ''}>+ Add</button>
+          </div>`;
         el.appendChild(card);
       });
     }
@@ -1017,7 +1043,7 @@
       if (!name) return;
       if (tables[idx].guests.length >= tables[idx].capacity) return;
       tables[idx].guests.push(name);
-      save();
+      saveTable(idx);
       input.value = '';
       renderManage();
       renderMap();
@@ -1041,10 +1067,6 @@
       if (name === 'manage') renderManage();
       if (name === 'map') renderMap();
     }
-
-    // ── INIT ──
-    renderMap();
-    updateStats();
   </script>
 </body>
 
