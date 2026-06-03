@@ -827,9 +827,9 @@
     </div>
   </div>
 
-  <!-- Firebase SDK v9 (compatible) -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database.js"></script>
+  <!-- Firebase SDK v8 (most compatible) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
   <script>
     // ── FIREBASE CONFIG ──
@@ -845,70 +845,65 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    const tablesRef = database.ref('tables');
+    if (typeof firebase !== 'undefined') {
+      firebase.initializeApp(firebaseConfig);
+      const database = firebase.database();
+      const tablesRef = database.ref('tables');
 
-    // ── TABLE CONFIGURATION ──
-    const TABLE_COUNT = 18;
-    function tableCapacity(i) { return i === 1 || i === 2 ? 6 : 8; }
-
-    const TABLE_POS = [
-      { x: 90, y: 148, r: 18 }, { x: 148, y: 148, r: 18 }, { x: 206, y: 148, r: 18 }, { x: 264, y: 148, r: 18 },
-      { x: 90, y: 204, r: 18 }, { x: 148, y: 204, r: 18 }, { x: 206, y: 204, r: 18 }, { x: 264, y: 204, r: 18 },
-      { x: 90, y: 260, r: 18 }, { x: 148, y: 260, r: 18 }, { x: 206, y: 260, r: 18 }, { x: 264, y: 260, r: 18 },
-      { x: 90, y: 316, r: 18 }, { x: 148, y: 316, r: 18 },
-      { x: 330, y: 148, r: 18 }, { x: 330, y: 204, r: 18 }, { x: 330, y: 260, r: 18 }, { x: 330, y: 316, r: 18 },
-    ];
-
-    // ── DATA MANAGEMENT ──
-    let tables = [];
-    let isLoading = true;
-
-    // Initialize with empty tables immediately
-    function initializeTables() {
-      tables = Array.from({ length: TABLE_COUNT }, (_, i) => ({
-        id: i + 1,
-        capacity: tableCapacity(i),
-        guests: []
-      }));
+      // Listen for real-time updates from Firebase
+      tablesRef.on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          tables = data;
+        } else {
+          // Initialize tables if empty on Firebase
+          tablesRef.set(tables);
+        }
+        renderMap();
+        renderManage();
+        updateStats();
+      }, (error) => {
+        console.error("Firebase error:", error);
+      });
+    } else {
+      console.warn("Firebase SDK not loaded, using local data only");
+      // Render UI with local data
+      setTimeout(() => {
+        renderMap();
+        renderManage();
+        updateStats();
+      }, 100);
     }
 
-    // Initialize immediately
-    initializeTables();
-    isLoading = false;
-
-    // Listen for real-time updates from Firebase
-    tablesRef.on('value', (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        tables = data;
-      } else {
-        // Initialize tables if empty on Firebase
-        tablesRef.set(tables);
-      }
-      renderMap();
-      renderManage();
-      updateStats();
-    }, (error) => {
-      console.error("Firebase error:", error);
-    });
-
     function save() {
-      // Firebase automatically syncs data - no additional save needed
-      // But we can update the entire tables array
-      tablesRef.set(tables).catch(error => {
-        console.error("Error saving to Firebase:", error);
-        alert('Error saving data: ' + error.message);
-      });
+      // Local save - Firebase syncs automatically if connected
+      try {
+        if (typeof firebase !== 'undefined' && firebase.database) {
+          const database = firebase.database();
+          const tablesRef = database.ref('tables');
+          tablesRef.set(tables).catch(error => {
+            console.error("Error saving to Firebase:", error);
+          });
+        }
+      } catch (e) {
+        console.warn("Firebase not available:", e);
+      }
     }
 
     function saveTable(tableId) {
       // Save individual table
-      if (tableId >= 0 && tableId < tables.length) {
-        tablesRef.child(tableId).set(tables[tableId]).catch(error => {
-          console.error("Error saving table:", error);
-        });
+      try {
+        if (tableId >= 0 && tableId < tables.length) {
+          if (typeof firebase !== 'undefined' && firebase.database) {
+            const database = firebase.database();
+            const tablesRef = database.ref('tables');
+            tablesRef.child(tableId).set(tables[tableId]).catch(error => {
+              console.error("Error saving table:", error);
+            });
+          }
+        }
+      } catch (e) {
+        console.warn("Firebase not available:", e);
       }
     }
 
