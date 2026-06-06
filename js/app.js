@@ -1,6 +1,6 @@
 
 // ── GLOBAL STATE ──
-const TABLE_COUNT = 18;
+const TABLE_COUNT = 26;
 let tables = [];
 
 // Table Positions based on the original map layout
@@ -27,7 +27,17 @@ const TABLE_POS = [
   { x: 275, y: 350, r: 23 },  // T16
   // Row 5
   { x: 95, y: 410, r: 23 },  // T17
-  { x: 155, y: 410, r: 23 }   // T18
+  { x: 155, y: 410, r: 23 },  // T18
+  { x: 215, y: 410, r: 23 },  // T19
+  { x: 275, y: 410, r: 23 },  // T20
+  // Row 6
+  { x: 95, y: 470, r: 23 },  // T21
+  { x: 155, y: 470, r: 23 },  // T22
+  { x: 215, y: 470, r: 23 },  // T23
+  { x: 275, y: 470, r: 23 },  // T24
+  // Row 7
+  { x: 95, y: 530, r: 23 },  // T25
+  { x: 155, y: 530, r: 23 }   // T26
 ];
 
 let activeTableIdx = null;
@@ -95,6 +105,17 @@ function setupFirebase() {
       if (data) {
         // Ensure guests array exists
         tables = data.map(t => ({ ...t, guests: t.guests || [] }));
+        
+        // Add new tables if TABLE_COUNT increased
+        if (tables.length < TABLE_COUNT) {
+          const newTables = [];
+          for (let i = tables.length; i < TABLE_COUNT; i++) {
+            const capacity = (i === 1 || i === 2) ? 6 : 8;
+            newTables.push({ id: i + 1, capacity: capacity, guests: [] });
+          }
+          tables = tables.concat(newTables);
+          tablesRef.set(tables);
+        }
       } else {
         tablesRef.set(tables);
       }
