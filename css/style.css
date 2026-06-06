@@ -322,7 +322,7 @@ body {
 .venue-map {
   position: relative;
   width: 370px;
-  height: 570px;
+  height: 720px;
   border-radius: 16px;
   overflow: hidden;
   box-shadow: var(--shadow-glow);
